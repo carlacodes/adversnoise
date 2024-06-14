@@ -9,7 +9,7 @@ from PIL import Image
 from torchvision import transforms
 from helpers import deepfool
 
-def call_torch_image_classification():
+def call_torch_image_classification(test_image = None):
     # Load the pretrained model
     model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
     model.eval()
@@ -32,9 +32,17 @@ def call_torch_image_classification():
 
     # Preprocess the image
     input_tensor = preprocess(input_image)
-    input_batch = input_tensor.unsqueeze(0)  # create a mini-batch as expected by the model
 
-    # Make the prediction
+
+    if test_image is not None:
+        input_tensor = test_image
+
+    if len(input_tensor.shape) == 4:
+        input_batch = input_tensor
+    else:
+        input_batch = input_tensor.unsqueeze(0)
+
+        # Make the prediction
     with torch.no_grad():
         output = model(input_batch)
 
@@ -99,7 +107,7 @@ def add_adversarial_noise():
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    add_adversarial_noise()
-    call_torch_image_classification()
+    pert_image = add_adversarial_noise()
+    call_torch_image_classification(test_image = pert_image)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
