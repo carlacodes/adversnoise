@@ -13,6 +13,9 @@ def call_torch_image_classification(test_image = None):
     # Load the pretrained model
     model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
     model.eval()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
+
     # Download an example image from the pytorch website
     url, filename = ("https://github.com/pytorch/hub/raw/master/images/dog.jpg", "dog.jpg")
     try: urllib.request.urlretrieve(url, filename)
@@ -41,6 +44,7 @@ def call_torch_image_classification(test_image = None):
         input_batch = input_tensor
     else:
         input_batch = input_tensor.unsqueeze(0)
+    input_batch = input_batch.to(device)
 
         # Make the prediction
     with torch.no_grad():
