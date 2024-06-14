@@ -12,12 +12,10 @@ def call_torch_image_classification():
     # Load the pretrained model
     model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
     model.eval()
-
     # Download an example image from the pytorch website
     url, filename = ("https://github.com/pytorch/hub/raw/master/images/dog.jpg", "dog.jpg")
     try: urllib.request.urlretrieve(url, filename)
     except Exception as e: print(e)
-
     # Open the image file
     input_image = Image.open(filename)
     #display the input image for fun
@@ -48,20 +46,13 @@ def call_torch_image_classification():
         print(f"Probability: {top5_prob[i].item()} Category ID: {top5_catid[i].item()}")
     _, top_catid = torch.max(probabilities, 0)
 
-    # Check if the top prediction is a dog
-    #find the corresponding category for top_catid
-    #https://gist.github.com/yrevar/942d3a0ac09ec9e5eb3a
-
     url = "https://gist.githubusercontent.com/yrevar/942d3a0ac09ec9e5eb3a/raw/238f720ff059c1f82f368259d1ca4ffa5dd8f9f5/imagenet1000_clsidx_to_labels.txt"
     with urllib.request.urlopen(url) as response:
         categories = ast.literal_eval(response.read().decode())
 
-    _, top_catid = torch.max(probabilities, 0)
-
     # Find the corresponding category for top_catid
     top_catid_item = top_catid.item()
 
-    # Find the corresponding category for top_catid
     top_catid_item = top_catid.item()
     if top_catid_item in categories:
         category = categories[top_catid_item]
