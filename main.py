@@ -7,6 +7,7 @@ from PIL import ImageFont
 import urllib.request
 from PIL import Image
 from torchvision import transforms
+from helpers import deepfool
 
 def call_torch_image_classification():
     # Load the pretrained model
@@ -66,13 +67,39 @@ def call_torch_image_classification():
     font = ImageFont.load_default()
     draw.text((10, 10), f"Prediction: {category}", fill="white", font=font, font_size=20)  # Specify text color
     input_image.show()
-
-
     return top5_prob, top5_catid
+
+def add_adversarial_noise():
+    # Load the pretrained model
+    model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
+    model.eval()
+    # Download an example image from the pytorch website
+    url, filename = ("https://github.com/pytorch/hub/raw/master/images/dog.jpg", "dog.jpg")
+    try: urllib.request.urlretrieve(url, filename)
+    except Exception as e: print(e)
+    # Open the image file
+    input_image = Image.open(filename)
+
+    preprocess = transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+
+    # Preprocess the image
+    input_tensor = preprocess(input_image)
+    r, loop_i, label_orig, label_pert, pert_image = deepfool.deepfool(input_tensor, model)
+
+    return pert_image
+    #next use deepfool implementation to add some adversarial noise, this is from a 2016 CPVR paper which improves on the FGSM attack, https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Moosavi-Dezfooli_DeepFool_A_Simple_CVPR_2016_paper.pdf
+
+
+    # Define the preprocessing transformation
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    add_adversarial_noise()
     call_torch_image_classification()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
