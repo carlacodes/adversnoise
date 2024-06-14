@@ -104,7 +104,7 @@ def add_adversarial_noise():
     r, loop_i, label_orig, label_pert, pert_image = deepfool.deepfool(input_tensor, model)
 
     return pert_image
-    #next use deepfool implementation to add some adversarial noise, this is from a 2016 CPVR paper which improves on the FGSM attack, https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Moosavi-Dezfooli_DeepFool_A_Simple_CVPR_2016_paper.pdf
+    #next use deepfool implementation to add some adversarial noise, this is from a 2016 CPVR paper which improves on the FGSM attack, by finding the minimum perturbation needed to fool a traditional resnet model, https://github.com/LTS4/DeepFool, https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Moosavi-Dezfooli_DeepFool_A_Simple_CVPR_2016_paper.pdf
 
 
     # Define the preprocessing transformation
