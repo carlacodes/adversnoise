@@ -1,21 +1,9 @@
-# This is a sample Python script.
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import torch
-import numpy as np
-import json
-import requests
 import ast
 import urllib.request
-# Display the same image with the classification displayed on top
 from PIL import ImageDraw
 from PIL import ImageFont
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
 import urllib.request
 from PIL import Image
 from torchvision import transforms
@@ -85,7 +73,7 @@ def call_torch_image_classification():
 
     draw = ImageDraw.Draw(input_image)
     font = ImageFont.load_default()
-    draw.text((10, 10), f"Prediction: {category}", fill="white", font=font)  # Specify text color
+    draw.text((10, 10), f"Prediction: {category}", fill="white", font=font, font_size=20)  # Specify text color
     input_image.show()
 
 
