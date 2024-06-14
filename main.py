@@ -9,6 +9,7 @@ from PIL import Image
 from torchvision import transforms
 from helpers import deepfool
 
+#TODO: add docstrings, make into class structure for better organization and reusability
 def call_torch_image_classification(test_image = None):
     # Load the pretrained model
     model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
