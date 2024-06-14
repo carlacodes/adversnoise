@@ -4,7 +4,13 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import torch
 import numpy as np
-
+import json
+import requests
+import ast
+import urllib.request
+# Display the same image with the classification displayed on top
+from PIL import ImageDraw
+from PIL import ImageFont
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
@@ -58,21 +64,29 @@ def call_torch_image_classification():
     #find the corresponding category for top_catid
     #https://gist.github.com/yrevar/942d3a0ac09ec9e5eb3a
 
-    dog_categories = list(range(151, 269))
+    url = "https://gist.githubusercontent.com/yrevar/942d3a0ac09ec9e5eb3a/raw/238f720ff059c1f82f368259d1ca4ffa5dd8f9f5/imagenet1000_clsidx_to_labels.txt"
+    with urllib.request.urlopen(url) as response:
+        categories = ast.literal_eval(response.read().decode())
 
-    if top_catid.item() in dog_categories:
-        print("The model correctly classified the image as a dog.")
+    _, top_catid = torch.max(probabilities, 0)
+
+    # Find the corresponding category for top_catid
+    top_catid_item = top_catid.item()
+
+    # Find the corresponding category for top_catid
+    top_catid_item = top_catid.item()
+    if top_catid_item in categories:
+        category = categories[top_catid_item]
     else:
-        print("The model did not classify the image as a dog.")
+        category = "Unknown"
 
-    #display the same image with the classification displayed on top
-    from PIL import ImageDraw
-    from PIL import ImageFont
+    print(f"The model classified the image as: {category}")
+
+
     draw = ImageDraw.Draw(input_image)
     font = ImageFont.load_default()
-    draw.text((10, 10), f"Prediction: {top5_catid[0].item()}", font=font)
+    draw.text((10, 10), f"Prediction: {category}", fill="white", font=font)  # Specify text color
     input_image.show()
-
 
 
     return top5_prob, top5_catid
