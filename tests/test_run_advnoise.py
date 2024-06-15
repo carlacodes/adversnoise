@@ -1,6 +1,9 @@
 import unittest
 from torchvision.transforms import ToTensor
 from PIL import Image
+import torch
+from run_advnoise import ImageClassifier, AdversarialNoiseGenerator
+
 
 class TestImageClassifier(unittest.TestCase):
     def setUp(self):
