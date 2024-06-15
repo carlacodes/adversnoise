@@ -1,9 +1,7 @@
 import numpy as np
 from torch.autograd import Variable
-import torch as torch
 import copy
 import urllib.request
-import ast
 def deepfool(image, net, num_classes=10, overshoot=0.02, max_iter=50):
     """
        :param image: Image of size HxWx3
