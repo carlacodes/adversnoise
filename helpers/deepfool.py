@@ -189,51 +189,91 @@ import torch
 import urllib.request
 import ast
 
+#
+# def pgd_attack(model, image, target_label_str, eps=0.3, alpha=2 / 255, iters=40):
+#     url = "https://gist.githubusercontent.com/yrevar/942d3a0ac09ec9e5eb3a/raw/238f720ff059c1f82f368259d1ca4ffa5dd8f9f5/imagenet1000_clsidx_to_labels.txt"
+#     with urllib.request.urlopen(url) as response:
+#         categories = ast.literal_eval(response.read().decode())
+#
+#     # Find the numerical category corresponding to the string label
+#     label = None
+#     for key, value in categories.items():
+#         if value == target_label_str:
+#             label = key
+#             break
+#
+#     if label is None:
+#         print(f"Label {target_label_str} not found in categories.")
+#         return
+#
+#     is_cuda = torch.cuda.is_available()
+#
+#     if is_cuda:
+#         print("Using GPU")
+#         image = image.cuda()
+#         model = model.cuda()
+#         device = torch.device("cuda")
+#     else:
+#         print("Using CPU")
+#         device = torch.device("cpu")
+#
+#     target_label = torch.tensor([label], dtype=torch.long).to(device)
+#     target_label = target_label.repeat(len(image))
+#     loss = torch.nn.CrossEntropyLoss()
+#
+#     ori_images = image.data
+#
+#     for i in range(iters):
+#         image.requires_grad = True
+#
+#         outputs = model(image)
+#
+#         model.zero_grad()
+#         cost = loss(outputs, target_label).to(device)
+#         cost.backward()
+#
+#         adv_images = image + alpha * image.grad.sign()
+#         eta = torch.clamp(adv_images - ori_images, min=-eps, max=eps)
+#         image = torch.clamp(ori_images + eta, min=0, max=1).detach_()
+#
+#     return image
 
-def pgd_attack(model, image, target_label_str, eps=0.3, alpha=2 / 255, iters=40):
-    url = "https://gist.githubusercontent.com/yrevar/942d3a0ac09ec9e5eb3a/raw/238f720ff059c1f82f368259d1ca4ffa5dd8f9f5/imagenet1000_clsidx_to_labels.txt"
-    with urllib.request.urlopen(url) as response:
-        categories = ast.literal_eval(response.read().decode())
 
-    # Find the numerical category corresponding to the string label
-    label = None
-    for key, value in categories.items():
-        if value == target_label_str:
-            label = key
-            break
+def pgd_attack(model, images, labels, targeted = True, eps=0.3, alpha=0.01, iters=40):
+    """
+    :param model: the model to attack
+    :param images: original images
+    :param labels: target labels
+    :param targeted: if the attack is targeted
+    :param eps: maximum perturbation
+    :param alpha: step size
+    :param iters: number of iterations
+    :return: perturbed images
+    """
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    if label is None:
-        print(f"Label {target_label_str} not found in categories.")
-        return
-
-    is_cuda = torch.cuda.is_available()
-
-    if is_cuda:
-        print("Using GPU")
-        image = image.cuda()
-        model = model.cuda()
-        device = torch.device("cuda")
+    if targeted:
+        loss_fn = torch.nn.CrossEntropyLoss()
     else:
-        print("Using CPU")
-        device = torch.device("cpu")
+        loss_fn = torch.nn.NLLLoss()
 
-    target_label = torch.tensor([label], dtype=torch.long).to(device)
-    target_label = target_label.repeat(len(image))
-    loss = torch.nn.CrossEntropyLoss()
-
-    ori_images = image.data
+    images = images.to(device)
+    labels = labels.to(device)
+    attack_images = images.clone().detach()
+    attack_images.requires_grad = True
 
     for i in range(iters):
-        image.requires_grad = True
-
-        outputs = model(image)
-
+        outputs = model(attack_images)
         model.zero_grad()
-        cost = loss(outputs, target_label).to(device)
+        cost = loss_fn(outputs, labels).to(device)
         cost.backward()
 
-        adv_images = image + alpha * image.grad.sign()
-        eta = torch.clamp(adv_images - ori_images, min=-eps, max=eps)
-        image = torch.clamp(ori_images + eta, min=0, max=1).detach_()
+        attack_images_grad = alpha * attack_images.grad.sign()
+        attack_images = attack_images.detach() + attack_images_grad
 
-    return image
+        # Clip the attack_images to make sure they're valid images
+        attack_images = torch.clamp(attack_images, min=0, max=1)
+        attack_images = torch.clamp(attack_images, min=images-eps, max=images+eps).detach_()
+        attack_images.requires_grad = True
+
+    return attack_images

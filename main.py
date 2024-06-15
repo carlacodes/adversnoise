@@ -41,6 +41,9 @@ def call_torch_image_classification(test_image = None):
 
     if test_image is not None:
         input_tensor = test_image
+    else:
+        print('test image is none, returning')
+        return
 
     if len(input_tensor.shape) == 4:
         input_batch = input_tensor
@@ -110,7 +113,8 @@ def add_adversarial_noise(input_image = None, target_label = None, sanity_check_
 
     # Preprocess the image
     input_tensor = preprocess(input_image)
-    r, loop_i, label_orig, label_pert, pert_image = deepfool.pgd_attack(model, input_tensor, target_label)
+    input_tensor = input_tensor.unsqueeze(0)
+    pert_image = deepfool.pgd_attack(model, input_tensor, 358, eps = 0.9, alpha = 2/255, iters = 40)
 
 
     # Define the mean and std
