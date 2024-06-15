@@ -150,7 +150,8 @@ class AdversarialNoiseGenerator:
 
 if __name__ == '__main__':
     noise_generator = AdversarialNoiseGenerator()
-    pert_image = noise_generator.add_noise(label_str='zebra', sanity_check_vis=True)
+    dog_image = Image.open("images/dog.jpg")
+    pert_image = noise_generator.add_noise(input_image=dog_image, label_str='zebra', sanity_check_vis=True)
 
     classifier = ImageClassifier()
     classifier.classify(pert_image)

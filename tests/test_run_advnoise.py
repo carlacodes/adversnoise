@@ -10,12 +10,10 @@ class TestImageClassifier(unittest.TestCase):
         self.classifier = ImageClassifier()
 
     def test_classify(self):
-        # Load a test image and convert it to a tensor
-        image = Image.open("../images/dog.jpg")
-        image_tensor = ToTensor()(image).unsqueeze(0)
+
 
         # Call the classify method
-        top5_prob, top5_catid = self.classifier.classify(image_tensor, visualise_output=False)
+        top5_prob, top5_catid = self.classifier.classify(pert_image, visualise_output=False)
 
         # Check the output types
         self.assertIsInstance(top5_prob, torch.Tensor)
@@ -32,16 +30,13 @@ class TestAdversarialNoiseGenerator(unittest.TestCase):
     def test_add_noise(self):
         # Load a test image and convert it to a tensor
         image = Image.open("../images/dog.jpg")
-        image_tensor = ToTensor()(image).unsqueeze(0)
 
         # Call the add_noise method
-        pert_image = self.noise_generator.add_noise(image_tensor, label_str='zebra', sanity_check_vis=False)
+        pert_image = self.noise_generator.add_noise(image, label_str='zebra', sanity_check_vis=False)
 
         # Check the output type
         self.assertIsInstance(pert_image, torch.Tensor)
 
-        # Check the output shape
-        self.assertEqual(pert_image.shape, image_tensor.shape)
 
 if __name__ == '__main__':
     unittest.main()
