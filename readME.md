@@ -16,3 +16,6 @@ Clone the repository:
 
 and run the following command to install the required packages using conda:
 ``` conda env create -f adversnoise.yml ```
+
+## Usage
+The main script can be found here: run_advnoise.py. Unit tests are also provided in the tests folder.
