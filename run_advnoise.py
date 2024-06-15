@@ -207,10 +207,11 @@ class AdversarialNoiseGenerator:
 
 if __name__ == '__main__':
     noise_generator = AdversarialNoiseGenerator()
+    # #UNCOMMENT BELOW lines to run the code directly:
     # dog_image = Image.open("images/dog.jpg")
     #
-    # ##input path to the image you want to clasify and the label_str you want to classify it as
     # pert_image = noise_generator.add_noise(input_image=dog_image, label_str='zebra', sanity_check_vis=True)
+    # #####
 
     image_path = input("Please enter the path to the image (press Enter to use the default image): ")
     if not image_path:
