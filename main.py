@@ -6,11 +6,12 @@ from PIL import ImageFont
 import urllib.request
 from PIL import Image
 from torchvision import transforms
-from helpers import deepfool
+from helpers import algorithms
 from PIL import ImageDraw
 import numpy as np
+#TODO: make into class structure for better organization and reusability
 
-#TODO: add docstrings, make into class structure for better organization and reusability
+
 def call_torch_image_classification(input_tensor):
     '''This function takes an input tensor and classifies it using a pretrained resnet18 model from pytorch
     args:
@@ -105,14 +106,17 @@ def add_adversarial_noise(input_image = None, target_label = None, sanity_check_
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
     input_tensor = input_tensor.to(device)
-    pert_image = deepfool.pgd_attack(model, input_tensor, target_labels, eps=0.3, alpha=0.01, iters=100)
+    pert_image = algorithms.pgd_attack(model, input_tensor, target_labels, eps=0.1, alpha=0.01, iters=100)
 
 
-    mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
-    std = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
+
 
     # Reverse the normalization
     if sanity_check_vis:
+        mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
+        std = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
+        mean = mean.to(device)
+        std = std.to(device)
         input_tensor_rev = input_tensor.clone()  # Create a copy to avoid changing the original tensor
         input_tensor_rev = input_tensor_rev.squeeze(0)  # Remove the batch dimension
         input_tensor_rev = input_tensor_rev * std + mean  # Reverse the normalization
@@ -147,6 +151,6 @@ def add_adversarial_noise(input_image = None, target_label = None, sanity_check_
 
 
 if __name__ == '__main__':
-    pert_image = add_adversarial_noise(target_label='zebra')
+    pert_image = add_adversarial_noise(target_label='zebra', sanity_check_vis=True)
     call_torch_image_classification(pert_image)
 
