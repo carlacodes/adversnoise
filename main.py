@@ -53,10 +53,10 @@ def call_torch_image_classification(input_tensor):
     print(f"The model classified the image as: {category}")
 
 
-    draw = ImageDraw.Draw(input_image)
+    draw = ImageDraw.Draw(input_tensor)
     font = ImageFont.load_default()
     draw.text((10, 10), f"Prediction: {category}", fill="white", font=font, font_size=20)  # Specify text color
-    input_image.show()
+    input_tensor.show()
     return top5_prob, top5_catid
 
 def add_adversarial_noise(input_image = None, target_label = None, sanity_check_vis = False):
@@ -89,11 +89,10 @@ def add_adversarial_noise(input_image = None, target_label = None, sanity_check_
     input_tensor = input_tensor.unsqueeze(0)
     target_label = 358  # The target label
     target_labels = torch.full((input_tensor.size(0),), target_label, dtype=torch.long)
-    # pert_image = deepfool.pgd_attack(model, input_tensor, target_labels, eps=0.9, alpha=2 / 255, iters=40)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
     input_tensor = input_tensor.to(device)
-    pert_image = deepfool.pgd_attack(model, input_tensor, target_labels, eps=0.3, alpha=0.01, iters=40)
+    pert_image = deepfool.pgd_attack(model, input_tensor, target_labels, eps=2, alpha=0.01, iters=100)
 
 
     # Define the mean and std
@@ -151,6 +150,6 @@ def add_adversarial_noise(input_image = None, target_label = None, sanity_check_
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     pert_image = add_adversarial_noise(target_label='zebra')
-    call_torch_image_classification(test_image = pert_image)
+    call_torch_image_classification(pert_image)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

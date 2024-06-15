@@ -253,9 +253,9 @@ def pgd_attack(model, images, labels, targeted = True, eps=0.3, alpha=0.01, iter
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     if targeted:
-        loss_fn = torch.nn.CrossEntropyLoss()
+        loss_fn = lambda out, lbl: -torch.nn.CrossEntropyLoss()(out, lbl)
     else:
-        loss_fn = torch.nn.NLLLoss()
+        loss_fn = torch.nn.CrossEntropyLoss()
 
     images = images.to(device)
     labels = labels.to(device)
