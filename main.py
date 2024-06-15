@@ -52,8 +52,8 @@ class ImageClassifier:
             input_tensor_vis = transforms.ToPILImage()(input_tensor_rev)
             draw = ImageDraw.Draw(input_tensor_vis)
             font = ImageFont.load_default()
-            draw.text((10, 10), f"Prediction: {category}", fill="white", font=font, font_size=20)  # Specify text color
-            input_tensor.show()
+            draw.text((10, 10), f"Prediction: {category}, \n probability: {top5_prob[0]}", fill="blue", font=font, font_size=20)  # Specify text color
+            input_tensor_vis.show()
 
         return top5_prob, top5_catid
 
