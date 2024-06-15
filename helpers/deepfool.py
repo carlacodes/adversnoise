@@ -3,7 +3,7 @@ from torch.autograd import Variable
 import torch as torch
 import copy
 import urllib.request
-
+import ast
 
 
 def deepfool(image, net, num_classes=10, overshoot=0.02, max_iter=50):

@@ -82,16 +82,23 @@ def call_torch_image_classification(test_image = None):
     input_image.show()
     return top5_prob, top5_catid
 
-def add_adversarial_noise():
+def add_adversarial_noise(input_image = None, target_label = None):
     # Load the pretrained model
     model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
     model.eval()
-    # Download an example image from the pytorch website
-    url, filename = ("https://github.com/pytorch/hub/raw/master/images/dog.jpg", "dog.jpg")
-    try: urllib.request.urlretrieve(url, filename)
-    except Exception as e: print(e)
-    # Open the image file
-    input_image = Image.open(filename)
+    if input_image is None:
+        # Download an example image from the pytorch website
+        url, filename = ("https://github.com/pytorch/hub/raw/master/images/dog.jpg", "dog.jpg")
+        try: urllib.request.urlretrieve(url, filename)
+        except Exception as e: print(e)
+        # Open the image file
+        input_image = Image.open(filename)
+    try:
+        assert isinstance(input_image, Image.Image)
+    except AssertionError as e:
+        print(e)
+        return
+
 
     preprocess = transforms.Compose([
         transforms.Resize(256),
@@ -102,8 +109,26 @@ def add_adversarial_noise():
 
     # Preprocess the image
     input_tensor = preprocess(input_image)
-    r, loop_i, label_orig, label_pert, pert_image = deepfool.deepfool(input_tensor, model)
+    r, loop_i, label_orig, label_pert, pert_image = deepfool.deepfool_mod(input_tensor, model, target_label)
+    #visualise the pert_image, convert to PIL image
+    pert_image_vis = transforms.ToPILImage()(pert_image.squeeze(0))
+    pert_image_vis.show()
 
+    # Define the mean and std
+    mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
+    std = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
+
+    # Reverse the normalization
+    input_tensor_rev = input_tensor.clone()  # Create a copy to avoid changing the original tensor
+    input_tensor_rev = input_tensor_rev.squeeze(0)  # Remove the batch dimension
+    input_tensor_rev = input_tensor_rev * std + mean  # Reverse the normalization
+
+    # Convert to a PIL image
+    input_tensor_rev = input_tensor_rev.squeeze(0)
+
+    # Now convert to a PIL image
+    input_tensor_vis = transforms.ToPILImage()(input_tensor_rev)
+    input_tensor_vis.show()
     return pert_image
     #next use deepfool implementation to add some adversarial noise, this is from a 2016 CPVR paper which improves on the FGSM attack, by finding the minimum perturbation needed to fool a traditional resnet model, https://github.com/LTS4/DeepFool, https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Moosavi-Dezfooli_DeepFool_A_Simple_CVPR_2016_paper.pdf
 
@@ -112,7 +137,7 @@ def add_adversarial_noise():
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    pert_image = add_adversarial_noise()
+    pert_image = add_adversarial_noise(target_label='zebra')
     call_torch_image_classification(test_image = pert_image)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
