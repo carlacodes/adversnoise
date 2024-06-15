@@ -11,39 +11,12 @@ from PIL import ImageDraw
 import numpy as np
 
 #TODO: add docstrings, make into class structure for better organization and reusability
-def call_torch_image_classification(test_image = None):
+def call_torch_image_classification(input_tensor):
     # Load the pretrained model
     model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
     model.eval()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
-
-    # Download an example image from the pytorch website
-    url, filename = ("https://github.com/pytorch/hub/raw/master/images/dog.jpg", "dog.jpg")
-    try: urllib.request.urlretrieve(url, filename)
-    except Exception as e: print(e)
-    # Open the image file
-    input_image = Image.open(filename)
-    #display the input image for fun
-    input_image.show()
-
-    # Define the preprocessing transformation
-    preprocess = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
-
-    # Preprocess the image
-    input_tensor = preprocess(input_image)
-
-
-    if test_image is not None:
-        input_tensor = test_image
-    else:
-        print('test image is none, returning')
-        return
 
     if len(input_tensor.shape) == 4:
         input_batch = input_tensor
@@ -114,7 +87,13 @@ def add_adversarial_noise(input_image = None, target_label = None, sanity_check_
     # Preprocess the image
     input_tensor = preprocess(input_image)
     input_tensor = input_tensor.unsqueeze(0)
-    pert_image = deepfool.pgd_attack(model, input_tensor, 358, eps = 0.9, alpha = 2/255, iters = 40)
+    target_label = 358  # The target label
+    target_labels = torch.full((input_tensor.size(0),), target_label, dtype=torch.long)
+    # pert_image = deepfool.pgd_attack(model, input_tensor, target_labels, eps=0.9, alpha=2 / 255, iters=40)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
+    input_tensor = input_tensor.to(device)
+    pert_image = deepfool.pgd_attack(model, input_tensor, target_labels, eps=0.3, alpha=0.01, iters=40)
 
 
     # Define the mean and std
