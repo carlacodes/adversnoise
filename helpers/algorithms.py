@@ -192,6 +192,7 @@ def pgd_attack(model, images, labels, targeted=True, eps=0.3, alpha=0.01, iters=
     :param alpha: step size
     :param iters: number of iterations
     :return: perturbed images
+    Source: https://github.com/Harry24k/PGD-pytorch
     """
     if len(images.shape) != 4:
         raise ValueError("Input images must be 4-d tensors.")
