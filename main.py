@@ -12,6 +12,12 @@ import numpy as np
 
 #TODO: add docstrings, make into class structure for better organization and reusability
 def call_torch_image_classification(input_tensor):
+    '''This function takes an input tensor and classifies it using a pretrained resnet18 model from pytorch
+    args:
+        input_tensor: torch.tensor: the input tensor to classify
+    returns:
+        top5_prob: torch.tensor: the top 5 probabilities given from the pretrained resnet18 model
+        '''
     # Load the pretrained model
     model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
     model.eval()
@@ -92,7 +98,7 @@ def add_adversarial_noise(input_image = None, target_label = None, sanity_check_
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
     input_tensor = input_tensor.to(device)
-    pert_image = deepfool.pgd_attack(model, input_tensor, target_labels, eps=2, alpha=0.01, iters=100)
+    pert_image = deepfool.pgd_attack(model, input_tensor, target_labels, eps=0.3, alpha=0.01, iters=100)
 
 
     # Define the mean and std
