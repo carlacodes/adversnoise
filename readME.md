@@ -11,5 +11,8 @@ To run the code, you need to have the following main packages installed:
 - pytorch
 - numpy
 
-Clone the repository and run the following command to install the required packages using conda:
-``` conda '
+Clone the repository:
+``` git clone https://github.com/carlacodes/adversnoise.git ```
+
+and run the following command to install the required packages using conda:
+``` conda env create -f adversnoise.yml ```
