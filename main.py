@@ -110,7 +110,7 @@ def add_adversarial_noise(input_image = None, target_label = None, sanity_check_
 
     # Preprocess the image
     input_tensor = preprocess(input_image)
-    r, loop_i, label_orig, label_pert, pert_image = deepfool.deepfool_mod(input_tensor, model, target_label)
+    r, loop_i, label_orig, label_pert, pert_image = deepfool.deepfool_mod(input_tensor, model, target_label, num_classes=10, overshoot=0.2, max_iter=100)
 
 
     # Define the mean and std
