@@ -66,7 +66,7 @@ def call_torch_image_classification(input_tensor):
     input_tensor.show()
     return top5_prob, top5_catid
 
-def add_adversarial_noise(input_image = None, target_label = None, sanity_check_vis = False):
+def add_adversarial_noise(input_image = None, label_str = None, sanity_check_vis = False):
     '''This function takes an input image and adds adversarial noise to it using the PGD algorithm
     args:
         input_image: PIL image: the input image to add adversarial noise to
@@ -94,6 +94,20 @@ def add_adversarial_noise(input_image = None, target_label = None, sanity_check_
             print("Could not convert input image to PIL image")
         return
 
+    url = "https://gist.githubusercontent.com/yrevar/942d3a0ac09ec9e5eb3a/raw/238f720ff059c1f82f368259d1ca4ffa5dd8f9f5/imagenet1000_clsidx_to_labels.txt"
+    with urllib.request.urlopen(url) as response:
+        categories = ast.literal_eval(response.read().decode())
+
+    target_label = None
+    for key, value in categories.items():
+        if value == label_str:
+            target_label = key
+            break
+
+    if target_label is None:
+        print(f"Label {label_str} not found in categories.")
+        return
+
 
 
     preprocess = transforms.Compose([
@@ -105,7 +119,6 @@ def add_adversarial_noise(input_image = None, target_label = None, sanity_check_
 
     input_tensor = preprocess(input_image)
     input_tensor = input_tensor.unsqueeze(0)
-    target_label = 358  # The target label
     target_labels = torch.full((input_tensor.size(0),), target_label, dtype=torch.long)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
@@ -155,6 +168,6 @@ def add_adversarial_noise(input_image = None, target_label = None, sanity_check_
 
 
 if __name__ == '__main__':
-    pert_image = add_adversarial_noise(target_label='zebra', sanity_check_vis=True)
+    pert_image = add_adversarial_noise(label_str='zebra', sanity_check_vis=True)
     call_torch_image_classification(pert_image)
 
