@@ -111,9 +111,7 @@ def add_adversarial_noise(input_image = None, target_label = None, sanity_check_
     # Preprocess the image
     input_tensor = preprocess(input_image)
     r, loop_i, label_orig, label_pert, pert_image = deepfool.deepfool_mod(input_tensor, model, target_label)
-    #visualise the pert_image, convert to PIL image
-    pert_image_vis = transforms.ToPILImage()(pert_image.squeeze(0))
-    pert_image_vis.show()
+
 
     # Define the mean and std
     mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
