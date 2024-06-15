@@ -9,7 +9,7 @@ within a small epsilon-ball around the original data. I used a relatively simple
 
 ## Installation
 To run the code, you need to have the following main packages installed:
-- pytorch (with CUDA 11.8)
+- pytorch 2.3.1 (with CUDA 11.8)
 - numpy
 
 Clone the repository:
@@ -17,6 +17,9 @@ Clone the repository:
 
 and run the following command to install the required packages using conda:
 ``` conda env create -f adversnoise.yml ```
+
+or use pip (not recommended):
+``` pip install -r requirements.txt ```
 
 ## Usage
 The main script can be found here: run_advnoise.py. Unit tests are also provided in the tests folder.
