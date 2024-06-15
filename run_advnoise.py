@@ -7,6 +7,14 @@ from helpers import algorithms
 import numpy as np
 
 class ImageClassifier:
+    """
+    A class used to classify images using a pretrained PyTorch model.
+
+    Methods
+    -------
+    classify(input_tensor, visualise_output=True)
+        Classify an image using a pretrained PyTorch model.
+    """
     def __init__(self, model_name='resnet18', device=None):
         self.model = torch.hub.load('pytorch/vision:v0.6.0', model_name, pretrained=True)
         self.model.eval()
@@ -14,6 +22,23 @@ class ImageClassifier:
         self.model = self.model.to(self.device)
 
     def classify(self, input_tensor, visualise_output=True):
+        """
+        Classify an image using a pretrained PyTorch model.
+
+        Parameters
+        ----------
+        input_tensor : torch.Tensor
+            the input image tensor
+        visualise_output : bool, optional
+            whether to visualise the top 5 predictions (default is True)
+
+        Returns
+        -------
+        top5_prob : torch.Tensor
+            the top 5 probabilities
+        top5_catid : torch.Tensor
+            the top 5 category IDs
+        """
         if len(input_tensor.shape) != 4:
             input_batch = input_tensor.unsqueeze(0)
         else:
@@ -74,16 +99,6 @@ class AdversarialNoiseGenerator:
          Adds adversarial noise to an image.
      """
     def __init__(self, model_name='resnet18', device=None):
-        """
-        Constructs all the necessary attributes for the AdversarialNoiseGenerator object.
-
-        Parameters
-        ----------
-        model_name : str, optional
-            the name of the pretrained model (default is 'resnet18')
-        device : str, optional
-            the device to run the model on ('cpu' or 'cuda') (default is None, which means the device is chosen automatically)
-        """
         self.model = torch.hub.load('pytorch/vision:v0.6.0', model_name, pretrained=True)
         self.model.eval()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") if device is None else device
