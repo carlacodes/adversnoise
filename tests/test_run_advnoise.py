@@ -11,7 +11,7 @@ class TestImageClassifier(unittest.TestCase):
 
     def test_classify(self):
         # Load a test image and convert it to a tensor
-        image = Image.open("path_to_your_test_image.jpg")
+        image = Image.open("../images/dog.jpg")
         image_tensor = ToTensor()(image).unsqueeze(0)
 
         # Call the classify method
@@ -31,7 +31,7 @@ class TestAdversarialNoiseGenerator(unittest.TestCase):
 
     def test_add_noise(self):
         # Load a test image and convert it to a tensor
-        image = Image.open("path_to_your_test_image.jpg")
+        image = Image.open("../images/dog.jpg")
         image_tensor = ToTensor()(image).unsqueeze(0)
 
         # Call the add_noise method
