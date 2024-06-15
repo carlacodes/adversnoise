@@ -58,13 +58,55 @@ class ImageClassifier:
         return top5_prob, top5_catid
 
 class AdversarialNoiseGenerator:
+    """
+     A class used to generate adversarial noise on images.
+
+     Attributes
+     ----------
+     model : torch model
+         a pretrained PyTorch model
+     device : str
+         the device to run the model on ('cpu' or 'cuda')
+
+     Methods
+     -------
+     add_noise(input_image=None, label_str=None, sanity_check_vis=False)
+         Adds adversarial noise to an image.
+     """
     def __init__(self, model_name='resnet18', device=None):
+        """
+        Constructs all the necessary attributes for the AdversarialNoiseGenerator object.
+
+        Parameters
+        ----------
+        model_name : str, optional
+            the name of the pretrained model (default is 'resnet18')
+        device : str, optional
+            the device to run the model on ('cpu' or 'cuda') (default is None, which means the device is chosen automatically)
+        """
         self.model = torch.hub.load('pytorch/vision:v0.6.0', model_name, pretrained=True)
         self.model.eval()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") if device is None else device
         self.model = self.model.to(self.device)
 
     def add_noise(self, input_image=None, label_str=None, sanity_check_vis=False):
+        """
+        Adds adversarial noise to an image in a supervised target manner using the PGD method.
+
+        Parameters
+        ----------
+        input_image : PIL Image or None, optional
+            the input image (default is None, which means a default image is used)
+        label_str : str or None, optional
+            the target label for the adversarial attack (default is None)
+        sanity_check_vis : bool, optional
+            whether to visualize the original and perturbed (pert) images (default is False)
+
+        Returns
+        -------
+        pert_image : torch.Tensor
+            the perturbed image
+        """
         if label_str is None or not isinstance(label_str, str):
             print("Please provide a valid label string")
             return
