@@ -2,12 +2,13 @@
 import torch
 import ast
 import urllib.request
-from PIL import ImageDraw
 from PIL import ImageFont
 import urllib.request
 from PIL import Image
 from torchvision import transforms
 from helpers import deepfool
+from PIL import ImageDraw
+import numpy as np
 
 #TODO: add docstrings, make into class structure for better organization and reusability
 def call_torch_image_classification(test_image = None):
@@ -82,7 +83,7 @@ def call_torch_image_classification(test_image = None):
     input_image.show()
     return top5_prob, top5_catid
 
-def add_adversarial_noise(input_image = None, target_label = None):
+def add_adversarial_noise(input_image = None, target_label = None, sanity_check_vis = False):
     # Load the pretrained model
     model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
     model.eval()
@@ -119,37 +120,49 @@ def add_adversarial_noise(input_image = None, target_label = None):
     std = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
 
     # Reverse the normalization
-    input_tensor_rev = input_tensor.clone()  # Create a copy to avoid changing the original tensor
-    input_tensor_rev = input_tensor_rev.squeeze(0)  # Remove the batch dimension
-    input_tensor_rev = input_tensor_rev * std + mean  # Reverse the normalization
+    if sanity_check_vis:
+        input_tensor_rev = input_tensor.clone()  # Create a copy to avoid changing the original tensor
+        input_tensor_rev = input_tensor_rev.squeeze(0)  # Remove the batch dimension
+        input_tensor_rev = input_tensor_rev * std + mean  # Reverse the normalization
 
-    # Convert to a PIL image
-    input_tensor_rev = input_tensor_rev.squeeze(0)
-
-    # Now convert to a PIL image
-    input_tensor_vis = transforms.ToPILImage()(input_tensor_rev)
-    input_tensor_vis.show()
-
-    # Reverse the normalization for pert_image
+        # Convert to a PIL image
+        input_tensor_rev = input_tensor_rev.squeeze(0)
+        input_tensor_vis = transforms.ToPILImage()(input_tensor_rev)
 
 
-    pert_image_rev = pert_image.clone()
+        pert_image_rev = pert_image.clone()
 
-    device = pert_image_rev.device
+        device = pert_image_rev.device
 
-    # Move mean and std to the same device as pert_image_rev
-    mean = mean.to(device)
-    std = std.to(device)
-    # Create a copy to avoid changing the original tensor
-    pert_image_rev = pert_image_rev.squeeze(0)  # Remove the batch dimension
-    pert_image_rev = pert_image_rev * std + mean  # Reverse the normalization
+        # Move mean and std to the same device as pert_image_rev
+        mean = mean.to(device)
+        std = std.to(device)
+        # Create a copy to avoid changing the original tensor
+        pert_image_rev = pert_image_rev.squeeze(0)  # Remove the batch dimension
+        pert_image_rev = pert_image_rev * std + mean  # Reverse the normalization
 
-    # Convert to a PIL image
-    pert_image_rev = pert_image_rev.squeeze(0)
+        # Convert to a PIL image
+        pert_image_rev = pert_image_rev.squeeze(0)
 
-    # Now convert to a PIL image
-    pert_image_vis = transforms.ToPILImage()(pert_image_rev)
-    pert_image_vis.show()
+        # Now convert to a PIL image
+        pert_image_vis = transforms.ToPILImage()(pert_image_rev)
+
+
+        # Assuming input_tensor_vis and pert_image_vis are PIL Images
+        draw_input = ImageDraw.Draw(input_tensor_vis)
+        draw_pert = ImageDraw.Draw(pert_image_vis)
+
+        # Add text
+        draw_input.text((10, 10), f"Before", fill="black")
+
+        draw_pert.text((10, 10), f"After: {target_label}", fill="black")
+
+        # Concatenate the two images
+        combined = Image.fromarray(np.concatenate((np.array(input_tensor_vis), np.array(pert_image_vis)), axis=1))
+
+        # Display the combined image
+        combined.show()
+
     return pert_image
     #next use deepfool implementation to add some adversarial noise, this is from a 2016 CPVR paper which improves on the FGSM attack, by finding the minimum perturbation needed to fool a traditional resnet model, https://github.com/LTS4/DeepFool, https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Moosavi-Dezfooli_DeepFool_A_Simple_CVPR_2016_paper.pdf
 
