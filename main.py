@@ -129,6 +129,27 @@ def add_adversarial_noise(input_image = None, target_label = None):
     # Now convert to a PIL image
     input_tensor_vis = transforms.ToPILImage()(input_tensor_rev)
     input_tensor_vis.show()
+
+    # Reverse the normalization for pert_image
+
+
+    pert_image_rev = pert_image.clone()
+
+    device = pert_image_rev.device
+
+    # Move mean and std to the same device as pert_image_rev
+    mean = mean.to(device)
+    std = std.to(device)
+    # Create a copy to avoid changing the original tensor
+    pert_image_rev = pert_image_rev.squeeze(0)  # Remove the batch dimension
+    pert_image_rev = pert_image_rev * std + mean  # Reverse the normalization
+
+    # Convert to a PIL image
+    pert_image_rev = pert_image_rev.squeeze(0)
+
+    # Now convert to a PIL image
+    pert_image_vis = transforms.ToPILImage()(pert_image_rev)
+    pert_image_vis.show()
     return pert_image
     #next use deepfool implementation to add some adversarial noise, this is from a 2016 CPVR paper which improves on the FGSM attack, by finding the minimum perturbation needed to fool a traditional resnet model, https://github.com/LTS4/DeepFool, https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Moosavi-Dezfooli_DeepFool_A_Simple_CVPR_2016_paper.pdf
 
