@@ -4,10 +4,7 @@ import torch as torch
 import copy
 import urllib.request
 import ast
-
-
 def deepfool(image, net, num_classes=10, overshoot=0.02, max_iter=50):
-
     """
        :param image: Image of size HxWx3
        :param net: network (input: images, output: values of activation **BEFORE** softmax).
@@ -239,7 +236,7 @@ import ast
 #     return image
 
 
-def pgd_attack(model, images, labels, targeted = True, eps=0.3, alpha=0.01, iters=40):
+def pgd_attack(model, images, labels, targeted=True, eps=0.3, alpha=0.01, iters=40):
     """
     :param model: the model to attack
     :param images: original images
@@ -250,6 +247,11 @@ def pgd_attack(model, images, labels, targeted = True, eps=0.3, alpha=0.01, iter
     :param iters: number of iterations
     :return: perturbed images
     """
+    if len(images.shape) != 4:
+        raise ValueError("Input images must be 4-d tensors.")
+
+
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     if targeted:

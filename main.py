@@ -75,21 +75,25 @@ def add_adversarial_noise(input_image = None, target_label = None, sanity_check_
     returns:
         pert_image: torch.tensor: the perturbed image with adversarial noise added
         '''
-    # Load the pretrained model
+
+
     model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
     model.eval()
     if input_image is None:
-        # Download an example image from the pytorch website
+        # Download an example image from the pytorch website if none is given
         url, filename = ("https://github.com/pytorch/hub/raw/master/images/dog.jpg", "dog.jpg")
         try: urllib.request.urlretrieve(url, filename)
         except Exception as e: print(e)
         # Open the image file
         input_image = Image.open(filename)
-    try:
-        assert isinstance(input_image, Image.Image)
-    except AssertionError as e:
-        print(e)
+    elif isinstance(input_image, Image.Image) == False:
+        print("Input image is not a PIL image..will try to convert")
+        try:
+            input_image = Image.open(input_image)
+        except:
+            print("Could not convert input image to PIL image")
         return
+
 
 
     preprocess = transforms.Compose([
