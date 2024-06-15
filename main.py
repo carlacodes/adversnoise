@@ -75,6 +75,9 @@ def add_adversarial_noise(input_image = None, label_str = None, sanity_check_vis
     returns:
         pert_image: torch.tensor: the perturbed image with adversarial noise added
         '''
+    if label_str is None or not isinstance(label_str, str):
+        print("Please provide a valid label string")
+        return
 
 
     model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
