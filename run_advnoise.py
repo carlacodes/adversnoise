@@ -207,8 +207,27 @@ class AdversarialNoiseGenerator:
 
 if __name__ == '__main__':
     noise_generator = AdversarialNoiseGenerator()
-    dog_image = Image.open("images/dog.jpg")
-    pert_image = noise_generator.add_noise(input_image=dog_image, label_str='zebra', sanity_check_vis=True)
+    # dog_image = Image.open("images/dog.jpg")
+    #
+    # ##input path to the image you want to clasify and the label_str you want to classify it as
+    # pert_image = noise_generator.add_noise(input_image=dog_image, label_str='zebra', sanity_check_vis=True)
+
+    image_path = input("Please enter the path to the image (press Enter to use the default image): ")
+    if not image_path:
+        image_path = 'images/dog.jpg'
+    label_str = input("Please enter the label string: ")
+    sanity_check_vis = input("Do you want to perform a sanity check \n visualisation of the image before and after perturbation? (yes/no): ")
+
+    # Convert the sanity_check_vis input to a boolean
+    sanity_check_vis = True if sanity_check_vis.lower() == 'yes' else False
+
+    # Open the image using the provided path
+    input_image = Image.open(image_path)
+
+    pert_image = noise_generator.add_noise(input_image=input_image, label_str=label_str,
+                                           sanity_check_vis=sanity_check_vis)
+
+
 
     classifier = ImageClassifier()
     classifier.classify(pert_image)
