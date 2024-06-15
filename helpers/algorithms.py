@@ -1,7 +1,9 @@
 import numpy as np
 from torch.autograd import Variable
 import copy
+import torch
 import urllib.request
+import ast
 def deepfool(image, net, num_classes=10, overshoot=0.02, max_iter=50):
     """
        :param image: Image of size HxWx3
@@ -178,60 +180,6 @@ def deepfool_mod(image, net, label_str, num_classes=10, overshoot=0.02, max_iter
     r_tot = (1+overshoot)*r_tot
 
     return r_tot, loop_i, label, k_i, pert_image
-
-
-import torch
-import urllib.request
-import ast
-
-#
-# def pgd_attack(model, image, target_label_str, eps=0.3, alpha=2 / 255, iters=40):
-#     url = "https://gist.githubusercontent.com/yrevar/942d3a0ac09ec9e5eb3a/raw/238f720ff059c1f82f368259d1ca4ffa5dd8f9f5/imagenet1000_clsidx_to_labels.txt"
-#     with urllib.request.urlopen(url) as response:
-#         categories = ast.literal_eval(response.read().decode())
-#
-#     # Find the numerical category corresponding to the string label
-#     label = None
-#     for key, value in categories.items():
-#         if value == target_label_str:
-#             label = key
-#             break
-#
-#     if label is None:
-#         print(f"Label {target_label_str} not found in categories.")
-#         return
-#
-#     is_cuda = torch.cuda.is_available()
-#
-#     if is_cuda:
-#         print("Using GPU")
-#         image = image.cuda()
-#         model = model.cuda()
-#         device = torch.device("cuda")
-#     else:
-#         print("Using CPU")
-#         device = torch.device("cpu")
-#
-#     target_label = torch.tensor([label], dtype=torch.long).to(device)
-#     target_label = target_label.repeat(len(image))
-#     loss = torch.nn.CrossEntropyLoss()
-#
-#     ori_images = image.data
-#
-#     for i in range(iters):
-#         image.requires_grad = True
-#
-#         outputs = model(image)
-#
-#         model.zero_grad()
-#         cost = loss(outputs, target_label).to(device)
-#         cost.backward()
-#
-#         adv_images = image + alpha * image.grad.sign()
-#         eta = torch.clamp(adv_images - ori_images, min=-eps, max=eps)
-#         image = torch.clamp(ori_images + eta, min=0, max=1).detach_()
-#
-#     return image
 
 
 def pgd_attack(model, images, labels, targeted=True, eps=0.3, alpha=0.01, iters=40):
