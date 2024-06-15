@@ -190,7 +190,7 @@ import urllib.request
 import ast
 
 
-def pgd_attack(model, image, target_label, eps=0.3, alpha=2 / 255, iters=40):
+def pgd_attack(model, image, target_label_str, eps=0.3, alpha=2 / 255, iters=40):
     url = "https://gist.githubusercontent.com/yrevar/942d3a0ac09ec9e5eb3a/raw/238f720ff059c1f82f368259d1ca4ffa5dd8f9f5/imagenet1000_clsidx_to_labels.txt"
     with urllib.request.urlopen(url) as response:
         categories = ast.literal_eval(response.read().decode())
@@ -198,12 +198,12 @@ def pgd_attack(model, image, target_label, eps=0.3, alpha=2 / 255, iters=40):
     # Find the numerical category corresponding to the string label
     label = None
     for key, value in categories.items():
-        if value == target_label:
+        if value == target_label_str:
             label = key
             break
 
     if label is None:
-        print(f"Label {target_label} not found in categories.")
+        print(f"Label {target_label_str} not found in categories.")
         return
 
     is_cuda = torch.cuda.is_available()
@@ -217,7 +217,7 @@ def pgd_attack(model, image, target_label, eps=0.3, alpha=2 / 255, iters=40):
         print("Using CPU")
         device = torch.device("cpu")
 
-    target_label = torch.tensor([target_label], dtype=torch.long).to(device)
+    target_label = torch.tensor([label], dtype=torch.long).to(device)
     target_label = target_label.repeat(len(image))
     loss = torch.nn.CrossEntropyLoss()
 
@@ -225,6 +225,7 @@ def pgd_attack(model, image, target_label, eps=0.3, alpha=2 / 255, iters=40):
 
     for i in range(iters):
         image.requires_grad = True
+
         outputs = model(image)
 
         model.zero_grad()
