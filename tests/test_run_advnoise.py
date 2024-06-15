@@ -8,12 +8,13 @@ from run_advnoise import ImageClassifier, AdversarialNoiseGenerator
 class TestImageClassifier(unittest.TestCase):
     def setUp(self):
         self.classifier = ImageClassifier()
+        self.noise_generator = AdversarialNoiseGenerator()
+        image = Image.open("../images/dog.jpg")
+        self.pert_image = self.noise_generator.add_noise(image, label_str='zebra', sanity_check_vis=False)
 
     def test_classify(self):
-
-
         # Call the classify method
-        top5_prob, top5_catid = self.classifier.classify(pert_image, visualise_output=False)
+        top5_prob, top5_catid = self.classifier.classify(self.pert_image, visualise_output=False)
 
         # Check the output types
         self.assertIsInstance(top5_prob, torch.Tensor)
@@ -36,7 +37,3 @@ class TestAdversarialNoiseGenerator(unittest.TestCase):
 
         # Check the output type
         self.assertIsInstance(pert_image, torch.Tensor)
-
-
-if __name__ == '__main__':
-    unittest.main()
