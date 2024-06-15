@@ -162,10 +162,8 @@ def add_adversarial_noise(input_image = None, target_label = None, sanity_check_
         combined.show()
 
     return pert_image
-    #next use deepfool implementation to add some adversarial noise, this is from a 2016 CPVR paper which improves on the FGSM attack, by finding the minimum perturbation needed to fool a traditional resnet model, https://github.com/LTS4/DeepFool, https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Moosavi-Dezfooli_DeepFool_A_Simple_CVPR_2016_paper.pdf
 
 
-    # Define the preprocessing transformation
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
