@@ -66,6 +66,14 @@ def call_torch_image_classification(input_tensor):
     return top5_prob, top5_catid
 
 def add_adversarial_noise(input_image = None, target_label = None, sanity_check_vis = False):
+    '''This function takes an input image and adds adversarial noise to it using the PGD algorithm
+    args:
+        input_image: PIL image: the input image to add adversarial noise to
+        target_label: str: the target label to add adversarial noise to
+        sanity_check_vis: bool: whether to visualize the adversarial noise
+    returns:
+        pert_image: torch.tensor: the perturbed image with adversarial noise added
+        '''
     # Load the pretrained model
     model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
     model.eval()
@@ -152,10 +160,7 @@ def add_adversarial_noise(input_image = None, target_label = None, sanity_check_
     return pert_image
 
 
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     pert_image = add_adversarial_noise(target_label='zebra')
     call_torch_image_classification(pert_image)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
